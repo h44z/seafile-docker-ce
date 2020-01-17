@@ -16,13 +16,15 @@ import sys
 import time
 
 from utils import (
-    call, get_install_dir, get_script, get_command_output, replace_file_pattern,
+    call, get_install_dir, get_script, get_command_output, get_seafile_version, replace_file_pattern,
     read_version_stamp, wait_for_mysql, update_version_stamp, loginfo
 )
+
 
 installdir = get_install_dir()
 topdir = dirname(installdir)
 logger = logging.getLogger(__name__)
+
 
 def collect_upgrade_scripts(from_version, to_version):
     """
@@ -49,10 +51,12 @@ def collect_upgrade_scripts(from_version, to_version):
             scripts.append(fn)
     return scripts
 
+
 def parse_upgrade_script_version(script):
     script = basename(script)
     m = re.match(r'upgrade_([0-9+.]+)_([0-9+.]+).sh', basename(script))
     return m.groups()
+
 
 def run_script_and_update_version_stamp(script, new_version):
     logging.info('Running script %s', script)
@@ -60,9 +64,11 @@ def run_script_and_update_version_stamp(script, new_version):
     call(script)
     update_version_stamp(new_version)
 
+
 def is_minor_upgrade(v1, v2):
     get_major_version = lambda x: x.split('.')[:2]
     return v1 != v2 and get_major_version(v1) == get_major_version(v2)
+
 
 def fix_media_symlinks(current_version):
     """
@@ -78,19 +84,22 @@ def fix_media_symlinks(current_version):
         logger.info('The container was recreated, running minor-upgrade.sh to fix the media symlinks')
         run_minor_upgrade(current_version)
 
+
 def run_minor_upgrade(current_version):
     minor_upgrade_script = join(installdir, 'upgrade', 'minor-upgrade.sh')
     run_script_and_update_version_stamp(minor_upgrade_script, current_version)
+
 
 def fix_custom_dir():
     real_custom_dir = '/shared/seafile/seahub-data/custom'
     if not exists(real_custom_dir):
         os.mkdir(real_custom_dir)
 
+
 def check_upgrade():
     fix_custom_dir()
     last_version = read_version_stamp()
-    current_version = os.environ['SEAFILE_VERSION']
+    current_version = get_seafile_version()
 
     if last_version == current_version:
         fix_media_symlinks(current_version)
@@ -110,11 +119,13 @@ def check_upgrade():
 
     update_version_stamp(current_version)
 
+
 def main():
     wait_for_mysql()
 
     os.chdir(installdir)
     check_upgrade()
+
 
 if __name__ == '__main__':
     main()

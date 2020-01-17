@@ -20,7 +20,7 @@ from utils import (
     wait_for_mysql, wait_for_nginx, read_version_stamp
 )
 
-seafile_version = get_seafile_version()
+
 installdir = get_install_dir()
 topdir = dirname(installdir)
 shared_seafiledir = '/shared/seafile'
@@ -108,18 +108,11 @@ def behind_ssl_termination():
     return get_conf_bool('BEHIND_SSL_TERMINATION')
 
 
-def parse_args():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--parse-ports', action='store_true')
-
-    return ap.parse_args()
-
-
 def init_seafile_server():
     version_stamp_file = get_version_stamp_file()
     if exists(join(shared_seafiledir, 'seafile-data')):
         if not exists(version_stamp_file):
-            update_version_stamp(os.environ['SEAFILE_VERSION'])
+            update_version_stamp(get_seafile_version())
         # sysbol link unlink after docker finish.
         latest_version_dir='/opt/seafile/seafile-server-latest'
         current_version_dir='/opt/seafile/' + get_conf('SEAFILE_SERVER', 'seafile-server') + '-' +  read_version_stamp()
@@ -225,4 +218,4 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
             call('ln -sf ' + join(shared_seafiledir, fn) + ' ' + src)
 
     loginfo('Updating version stamp')
-    update_version_stamp(os.environ['SEAFILE_VERSION'])
+    update_version_stamp(get_seafile_version())

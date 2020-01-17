@@ -27,6 +27,7 @@ generated_dir = '/bootstrap/generated'
 installdir = get_install_dir()
 topdir = dirname(installdir)
 
+
 def watch_controller():
     maxretry = 4
     retry = 0
@@ -40,6 +41,7 @@ def watch_controller():
         time.sleep(5)
     loginfo("seafile controller exited unexpectedly.")
     sys.exit(1)
+
 
 def main():
     logdbg("Starting seafile container ...")
@@ -87,6 +89,7 @@ def main():
     except KeyboardInterrupt:
         loginfo("Stopping seafile server.")
         sys.exit(0)
+
 
 if __name__ == '__main__':
     setup_logging()
