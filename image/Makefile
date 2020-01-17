@@ -1,10 +1,10 @@
 server_version=7.0.5
 
-base_image=seafileltd/base-mc:18.04
-base_image_squashed=seafileltd/base-mc:18.04-squashed
-server_image=seafileltd/seafile-mc:$(server_version)
-server_image_squashed=seafileltd/seafile-mc:$(server_version)-squashed
-latest_server_image=seafileltd/seafile-mc:latest
+base_image=h44z/base-mc:18.04
+base_image_squashed=h44z/base-mc:18.04-squashed
+server_image=h44z/seafile-mc:$(server_version)
+server_image_squashed=h44z/seafile-mc:$(server_version)-squashed
+latest_server_image=h44z/seafile-mc:latest
 
 all:
 	@echo

@@ -1,4 +1,4 @@
-FROM seafileltd/base-mc:18.04
+FROM h44z/base-mc:18.04
 
 # For suport set local time zone.
 RUN export DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install tzdata -y
