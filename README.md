@@ -2,25 +2,28 @@
 
 ## About
 
-- [Docker](https://docker.com/) is an open source project to pack, ship and run any Linux application in a lighter weight, faster container than a traditional virtual machine.
+- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image.
 
-- Docker makes it much easier to deploy [a Seafile server](https://github.com/haiwen/seafile) on your servers and keep it updated.
+- It is based on the official docker image (https://github.com/haiwen/seafile-docker). 
 
-- The base image configures Seafile with the Seafile team's recommended optimal defaults.
+- The image only contains the community edition of seafile. The build process has been simplified and improved in comparison to the official image.
 
-If you are not familiar with docker commands, please refer to [docker documentation](https://docs.docker.com/engine/reference/commandline/cli/).
+- It is possible to use this image with an existing, none dockerized Seafile installation. The usage of an external reverse proxy (like nginx) is also supported.
 
-## Building the docker image
+- Setting up is really easy and can be (or should be) done via Docker Compose.
+
+
+## Building the docker image from scratch
 To build the docker image, docker must be installed (at least version 17.06.0). 
-
-You also need docker-squash (https://github.com/goldmann/docker-squash):
-```
-sudo pip3 install docker-squash
-```
 
 After the dependcies have been set up, change to the image directory and build the images using make:
 
 ```
+# get the sources
+git clone https://github.com/h44z/seafile-docker.git
+cd seafile-docker/image
+
+# build the image
 make base
 make server
 ```
@@ -33,7 +36,7 @@ Make sure that you have installed Docker Compose with version 1.19.0 or higher.
 git clone https://github.com/h44z/seafile-docker.git
 cd seafile-docker
 
-# configure the environment
+# configure the environment, change seafile settings
 cp .env.dist .env
 edit .env
 
