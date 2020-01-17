@@ -2,6 +2,7 @@
 
 PREPARE := $(shell test -e ../.env || cp ../.env.dist ../.env)
 IS_ENV_PRESENT := $(shell test -e ../.env && echo -n yes)
+GIT_HASH := $(shell git rev-parse --short HEAD)
 
 ifeq ($(IS_ENV_PRESENT), yes)
 	include ../.env
@@ -11,6 +12,7 @@ endif
 server_version=${VERSION}
 
 base_image=h44z/base-ce:18.04
+latest_base_image=h44z/base-ce:latest
 server_image=h44z/seafile-ce:$(server_version)
 latest_server_image=h44z/seafile-ce:latest
 
@@ -28,14 +30,27 @@ server:
 	cd seafile && docker build --no-cache -t $(server_image) . --build-arg SEAFILE_VERSION=${VERSION}
 
 push-base:
-	docker tag $(base_image)
+	docker tag $(base_image) $(latest_base_image)
+	docker tag $(base_image) $(base_image)-$(GIT_HASH)
+	docker push $(base_image)-$(GIT_HASH)
+	docker push $(latest_base_image)
+
+push-base-release:
+	docker tag $(base_image) $(base_image)
 	docker push $(base_image)
 
 push-server:
 	docker tag $(server_image) $(latest_server_image)
-	docker push $(server_image)
+	docker tag $(server_image) $(server_image)-$(GIT_HASH)
+	docker push $(server_image)-$(GIT_HASH)
 	docker push $(latest_server_image)
+
+push-server-release:
+	docker tag $(server_image) $(server_image)
+	docker push $(server_image)
 
 push: push-base push-server
 
-.PHONY: base server push push-base push-server
+push-release: push-base-release push-server-release
+
+.PHONY: base server push push-release push-base push-server push-base-release push-server-release
