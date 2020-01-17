@@ -27,4 +27,4 @@ COPY templates /templates
 
 EXPOSE 80
 
-CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+CMD ["/sbin/my_init", "--", "/scripts/python/start.py"]

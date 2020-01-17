@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #coding: UTF-8
 
 """
@@ -27,6 +26,7 @@ topdir = dirname(installdir)
 shared_seafiledir = '/shared/seafile'
 ssl_dir = '/shared/ssl'
 generated_dir = '/bootstrap/generated'
+
 
 def init_letsencrypt():
     loginfo('Preparing for letsencrypt ...')
@@ -99,17 +99,21 @@ def generate_local_nginx_conf():
         nginx_shared_file = '/shared/nginx/conf/seafile.nginx.conf'
         call('mv {0} {1} && ln -sf {1} {0}'.format(nginx_etc_file, nginx_shared_file))
 
+
 def is_https():
     return get_conf_bool('SEAFILE_SERVER_LETSENCRYPT') or get_conf_bool('BEHIND_SSL_TERMINATION')
 
+
 def behind_ssl_termination():
     return get_conf_bool('BEHIND_SSL_TERMINATION')
+
 
 def parse_args():
     ap = argparse.ArgumentParser()
     ap.add_argument('--parse-ports', action='store_true')
 
     return ap.parse_args()
+
 
 def init_seafile_server():
     version_stamp_file = get_version_stamp_file()
