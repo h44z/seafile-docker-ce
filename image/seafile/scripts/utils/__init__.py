@@ -267,18 +267,23 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
 
 def wait_for_mysql():
     db_host = get_conf('DB_HOST', '127.0.0.1')
-    db_user = 'root'
-    db_passwd = get_conf('DB_ROOT_PASSWD', '')
+
+    if get_conf('USE_EXISTING_DB', '0').lower() in ('true', '1', 'yes'):
+        db_user = get_conf('DB_USER')
+        db_passwd = get_conf('DB_USER_PASSWD')
+    else:
+        db_user = 'root'
+        db_passwd = get_conf('DB_ROOT_PASSWD', '')
 
     while True:
         try:
-	    MySQLdb.connect(host=db_host, port=3306, user=db_user, passwd=db_passwd)
-	except Exception as e:
-	    print ('waiting for mysql server to be ready: %s', e)
-	    time.sleep(2)
-	    continue
-	logdbg('mysql server is ready')
-	return
+        MySQLdb.connect(host=db_host, port=3306, user=db_user, passwd=db_passwd)
+    except Exception as e:
+        print('waiting for mysql server to be ready: %s', e)
+        time.sleep(2)
+        continue
+    logdbg('mysql server is ready')
+    return
 
 def wait_for_nginx():
     while True:

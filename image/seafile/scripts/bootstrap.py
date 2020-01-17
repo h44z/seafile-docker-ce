@@ -50,7 +50,7 @@ def init_letsencrypt():
         loginfo('Found existing cert file {}'.format(ssl_crt))
         if cert_has_valid_days(ssl_crt, 30):
             loginfo('Skip letsencrypt verification since we have a valid certificate')
-	    if exists(join(ssl_dir, 'letsencrypt')):
+        if exists(join(ssl_dir, 'letsencrypt')):
                 # Create a crontab to auto renew the cert for letsencrypt.
                 call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
             return
@@ -125,10 +125,17 @@ def init_seafile_server():
         'MYSQL_USER': 'seafile',
         'MYSQL_USER_PASSWD': str(uuid.uuid4()),
         'MYSQL_USER_HOST': '%.%.%.%',
-	'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
+        'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
         # Default MariaDB root user has empty password and can only connect from localhost.
         'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
     }
+    if get_conf('USE_EXISTING_DB', '0').lower() in ('true', '1', 'yes'):
+        env['MYSQL_USER'] = get_conf('DB_USER', 'seafile')
+        env['MYSQL_USER_PASSWD'] = get_conf('DB_USER_PASSWD', str(uuid.uuid4()))
+        env['MYSQL_USER_HOST'] = get_conf('DB_USER_HOST', '%.%.%.%')
+        env['CCNET_DB'] = get_conf('CCNET_DB', 'ccnet_db')
+        env['SEAFILE_DB'] = get_conf('SEAFILE_DB', 'seafile_db')
+        env['SEAHUB_DB'] = get_conf('SEAHUB_DB', 'seahub_db')
 
     # Change the script to allow mysql root password to be empty
     # call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
