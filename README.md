@@ -1,4 +1,3 @@
-[![Build Status](https://secure.travis-ci.org/haiwen/seafile-docker.png?branch=master)](http://travis-ci.org/haiwen/seafile-docker)
 
 ## About
 
@@ -6,7 +5,7 @@
 
 - It is based on the official docker image (https://github.com/haiwen/seafile-docker). 
 
-- The image only contains the community edition of seafile. The build process has been simplified and improved in comparison to the official image.
+- The image only contains the community edition of Seafile. The build process has been simplified and improved in comparison to the official image.
 
 - It is possible to use this image with an existing, none dockerized Seafile installation. The usage of an external reverse proxy (like nginx) is also supported.
 
@@ -45,6 +44,16 @@ docker-compose up
 
 # have fun...
 ```
+
+
+### Environment Variables
+Take a look at .env.dist for all available environment variables. Copy `.env.dist` to `.env`, uncomment and edit the variables as needed.
+
+
+### Manual configuration of Seafile
+After the Seafile container has been started at least once, the mounted volumes should contain a folder `shared`. The seafile configuration files are located in `shared/seafile/conf`. Take a look at the official manual to check out which settings can be changed.
+
+HINT: After the initial setup (first run), changing the environment variables in .env does not reflect to the configuration files!
 
 ### Troubleshooting
 
