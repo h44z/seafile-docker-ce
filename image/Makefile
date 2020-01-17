@@ -21,7 +21,7 @@ base:
 	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
 
 server:
-	cd seafile && cp -rf ../../scripts ./ && docker build -t $(server_image) .
+	cd seafile && docker build -t $(server_image) .
 	docker-squash --tag $(server_image_squashed) $(server_image) --from-layer=$(base_image)
 	docker tag $(server_image_squashed) $(server_image)
 	docker tag $(server_image) $(latest_server_image)
