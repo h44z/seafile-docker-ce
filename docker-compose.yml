@@ -1,0 +1,41 @@
+version: '3.3'
+services:
+  db:
+    image: mariadb:10.1
+    container_name: seafile-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWD}
+      - MYSQL_LOG_CONSOLE=true
+    volumes:
+      - ${SEAFILE_DB_DATA:-./data/db}:/var/lib/mysql
+    networks:
+      - seafile-net
+
+  memcached:
+    image: memcached:1.5.6
+    container_name: seafile-memcached
+    entrypoint: memcached -m 256
+    networks:
+      - seafile-net
+
+  seafile:
+    image: h44z/seafile-ce:${VERSION:-7.0.5}
+    container_name: seafile
+    ports:
+      - "${HTTP_PORT:-80}:80"
+#      - "${HTTPS_PORT:-443}:443"  # If https is enabled, cancel the comment.
+    volumes:
+      - ${SEAFILE_SHARED_DATA:-./data/shared}:/shared
+    env_file:
+      - .env
+    depends_on:
+      - memcached
+    networks:
+      - seafile-net
+
+networks:
+  seafile-net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.66.0.0/16

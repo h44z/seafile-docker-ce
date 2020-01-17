@@ -26,7 +26,22 @@ make server
 ```
 
 ## Running Seafile 7.x.x with docker-compose
-TODO
+Make sure that you have installed Docker Compose with version 1.19.0 or higher.
+
+```
+# get the sources
+git clone https://github.com/h44z/seafile-docker.git
+cd seafile-docker
+
+# configure the environment
+cp .env.dist .env
+edit .env
+
+# start it!
+docker-compose up
+
+# have fun...
+```
 
 ### Troubleshooting
 

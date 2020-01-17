@@ -3,4 +3,5 @@
 *.swp
 .DS_Store
 *.pyc
-
+.env
+data/

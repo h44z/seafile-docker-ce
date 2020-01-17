@@ -15,7 +15,7 @@ import time
 
 from utils import (
     call, get_conf, get_install_dir, get_script, get_command_output,
-    render_template, wait_for_mysql, setup_logging
+    render_template, wait_for_mysql, setup_logging, logdbg, loginfo
 )
 from upgrade import check_upgrade
 from bootstrap import init_seafile_server, is_https, init_letsencrypt, generate_local_nginx_conf
@@ -38,20 +38,27 @@ def watch_controller():
         else:
             retry = 0
         time.sleep(5)
-    print 'seafile controller exited unexpectedly.'
+    loginfo("seafile controller exited unexpectedly.")
     sys.exit(1)
 
 def main():
+    logdbg("Starting seafile container ...")
     if not exists(shared_seafiledir):
         os.mkdir(shared_seafiledir)
     if not exists(generated_dir):
         os.makedirs(generated_dir)
 
     if is_https():
+        logdbg("Initializing letsencrypt ...")
         init_letsencrypt()
+    
+    logdbg("Generating nginx config ...")
     generate_local_nginx_conf()
+    logdbg("Reloading nginx ...")
     call('nginx -s reload')
 
+
+    logdbg("Waiting for mysql server ...")
     wait_for_mysql()
     init_seafile_server()
 
@@ -74,11 +81,11 @@ def main():
         if exists(password_file):
             os.unlink(password_file)
 
-    print 'seafile server is running now.'
+    loginfo("Seafile server is running now.")
     try:
         watch_controller()
     except KeyboardInterrupt:
-        print 'Stopping seafile server.'
+        loginfo("Stopping seafile server.")
         sys.exit(0)
 
 if __name__ == '__main__':

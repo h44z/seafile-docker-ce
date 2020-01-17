@@ -12,9 +12,10 @@ import shutil
 import sys
 import uuid
 import time
+import re
 
 from utils import (
-    call, get_conf, get_install_dir, loginfo,
+    call, get_conf, get_conf_bool,get_install_dir, loginfo,
     get_script, render_template, get_seafile_version, eprint,
     cert_has_valid_days, get_version_stamp_file, update_version_stamp,
     wait_for_mysql, wait_for_nginx, read_version_stamp
@@ -50,7 +51,7 @@ def init_letsencrypt():
         loginfo('Found existing cert file {}'.format(ssl_crt))
         if cert_has_valid_days(ssl_crt, 30):
             loginfo('Skip letsencrypt verification since we have a valid certificate')
-        if exists(join(ssl_dir, 'letsencrypt')):
+            if exists(join(ssl_dir, 'letsencrypt')):
                 # Create a crontab to auto renew the cert for letsencrypt.
                 call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
             return
@@ -83,7 +84,9 @@ def generate_local_nginx_conf():
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     context = {
         'https': is_https(),
+        'behind_ssl_termination': behind_ssl_termination(),
         'domain': domain,
+        'enable_webdav': get_conf_bool('ENABLE_WEBDAV')
     }
 
     if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
@@ -97,7 +100,10 @@ def generate_local_nginx_conf():
         call('mv {0} {1} && ln -sf {1} {0}'.format(nginx_etc_file, nginx_shared_file))
 
 def is_https():
-    return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
+    return get_conf_bool('SEAFILE_SERVER_LETSENCRYPT') or get_conf_bool('BEHIND_SSL_TERMINATION')
+
+def behind_ssl_termination():
+    return get_conf_bool('BEHIND_SSL_TERMINATION')
 
 def parse_args():
     ap = argparse.ArgumentParser()
@@ -129,7 +135,7 @@ def init_seafile_server():
         # Default MariaDB root user has empty password and can only connect from localhost.
         'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
     }
-    if get_conf('USE_EXISTING_DB', '0').lower() in ('true', '1', 'yes'):
+    if get_conf_bool('USE_EXISTING_DB'):
         env['MYSQL_USER'] = get_conf('DB_USER', 'seafile')
         env['MYSQL_USER_PASSWD'] = get_conf('DB_USER_PASSWD', str(uuid.uuid4()))
         env['MYSQL_USER_HOST'] = get_conf('DB_USER_HOST', '%.%.%.%')
@@ -182,20 +188,25 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('[Client]\n')
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
+    with open(join(topdir, 'conf', 'ccnet.conf'), "r") as fp:
+        ccnet_conf_lines = fp.readlines()
+    with open(join(topdir, 'conf', 'ccnet.conf'), "w") as fp:
+        for line in ccnet_conf_lines:
+            fp.write(re.sub(r"^SERVICE_URL = .*", "SERVICE_URL = {proto}://{domain}", line).format(proto=proto, domain=domain))
 
-    # Disabled the Elasticsearch process on Seafile-container
-    # Connection to the Elasticsearch-container
-    if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
-        with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
-            fp_lines = fp.readlines()
-            if '[INDEX FILES]\n' in fp_lines:
-               insert_index = fp_lines.index('[INDEX FILES]\n') + 1
-               insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
-               for line in insert_lines:
-                   fp_lines.insert(insert_index, line)
-    
-        with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
-            fp.writelines(fp_lines)
+    # Setup seafdav
+    if os.path.exists(join(topdir, 'conf', 'seafdav.conf')):
+        with open(join(topdir, 'conf', 'seafdav.conf'), "r") as fp:
+            seafdav_conf_lines = fp.readlines()
+        with open(join(topdir, 'conf', 'seafdav.conf'), "w") as fp:
+            seafdav_enabled = "true" if get_conf_bool('ENABLE_WEBDAV') else "false"
+            for line in seafdav_conf_lines:
+                if line.startswith("enabled"):
+                    fp.write("enabled = {seafdav}\n".format(seafdav=seafdav_enabled))
+                elif line.startswith("share_name"):
+                    fp.write("share_name = /seafdav\n")
+                else:
+                    fp.write(line)
 
     # After the setup script creates all the files inside the
     # container, we need to move them to the shared volume

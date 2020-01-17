@@ -1,10 +1,18 @@
-server_version=7.0.5
+.SILENT:
 
-base_image=h44z/base-mc:18.04
-base_image_squashed=h44z/base-mc:18.04-squashed
-server_image=h44z/seafile-mc:$(server_version)
-server_image_squashed=h44z/seafile-mc:$(server_version)-squashed
-latest_server_image=h44z/seafile-mc:latest
+PREPARE := $(shell test -e ../.env || cp ../.env.dist ../.env)
+IS_ENV_PRESENT := $(shell test -e ../.env && echo -n yes)
+
+ifeq ($(IS_ENV_PRESENT), yes)
+	include ../.env
+	export $(shell sed 's/=.*//' ../.env)
+endif
+
+server_version=${VERSION}
+
+base_image=h44z/base-ce:18.04
+server_image=h44z/seafile-ce:$(server_version)
+latest_server_image=h44z/seafile-ce:latest
 
 all:
 	@echo
@@ -13,22 +21,20 @@ all:
 
 base:
 	docker pull phusion/baseimage:0.11
-	docker-squash --tag phusion/baseimage:latest phusion/baseimage:0.11
-	docker tag phusion/baseimage:latest phusion/baseimage:0.11
-	cd base && docker build -t $(base_image) .
-	docker-squash --tag $(base_image_squashed) $(base_image)
-	docker tag $(base_image_squashed) $(base_image)
-	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
-
+	cd base && docker build --no-cache -t $(base_image) .
+	
 server:
-	cd seafile && docker build -t $(server_image) .
-	docker-squash --tag $(server_image_squashed) $(server_image) --from-layer=$(base_image)
-	docker tag $(server_image_squashed) $(server_image)
-	docker tag $(server_image) $(latest_server_image)
-	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
+	@echo Building seafile server version ${VERSION}
+	cd seafile && docker build --no-cache -t $(server_image) . --build-arg SEAFILE_VERSION=${VERSION}
 
 push-base:
+	docker tag $(base_image)
 	docker push $(base_image)
+
+push-server:
+	docker tag $(server_image) $(latest_server_image)
+	docker push $(server_image)
+	docker push $(latest_server_image)
 
 push: push-base push-server
 

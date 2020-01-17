@@ -123,8 +123,7 @@ def setup_colorlog():
         }
     })
 
-    logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(
-        logging.WARNING)
+    logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.WARNING)
 
 
 def setup_logging(level=logging.INFO):
@@ -136,14 +135,12 @@ def setup_logging(level=logging.INFO):
     }
 
     logging.basicConfig(**kw)
-    logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(
-        logging.WARNING)
+    logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.WARNING)
 
 def get_process_cmd(pid, env=False):
     env = 'e' if env else ''
     try:
-        return subprocess.check_output('ps {} -o command {}'.format(env, pid),
-                                       shell=True).strip().splitlines()[1]
+        return subprocess.check_output('ps {} -o command {}'.format(env, pid), shell=True).strip().splitlines()[1]
     # except Exception, e:
     #     print(e)
     except:
@@ -222,6 +219,10 @@ def get_conf(key, default=None):
     key = key.upper()
     return os.environ.get(key, default)
 
+def get_conf_bool(key, default="false"):
+    v = get_conf(key, default)
+    return v.lower() in ('true', '1', 'yes')
+
 def _add_default_context(context):
     default_context = {
         'current_timestr': datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S'),
@@ -268,7 +269,7 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
 def wait_for_mysql():
     db_host = get_conf('DB_HOST', '127.0.0.1')
 
-    if get_conf('USE_EXISTING_DB', '0').lower() in ('true', '1', 'yes'):
+    if get_conf_bool('USE_EXISTING_DB'):
         db_user = get_conf('DB_USER')
         db_passwd = get_conf('DB_USER_PASSWD')
     else:
@@ -277,13 +278,13 @@ def wait_for_mysql():
 
     while True:
         try:
-        MySQLdb.connect(host=db_host, port=3306, user=db_user, passwd=db_passwd)
-    except Exception as e:
-        print('waiting for mysql server to be ready: %s', e)
-        time.sleep(2)
-        continue
-    logdbg('mysql server is ready')
-    return
+            MySQLdb.connect(host=db_host, port=3306, user=db_user, passwd=db_passwd)
+        except Exception as e:
+            print('waiting for mysql server to be ready: %s', e)
+            time.sleep(2)
+            continue
+        logdbg('mysql server is ready')
+        return
 
 def wait_for_nginx():
     while True:

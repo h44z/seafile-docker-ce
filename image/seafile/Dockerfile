@@ -1,4 +1,4 @@
-FROM h44z/base-mc:18.04
+FROM h44z/base-ce:18.04
 
 # For support set local time zone.
 RUN export DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install tzdata -y
@@ -7,7 +7,11 @@ WORKDIR /opt/seafile
 
 RUN mkdir -p /etc/my_init.d
 
-ENV SEAFILE_VERSION=7.0.5 SEAFILE_SERVER=seafile-server
+# build-time arguments, use them in docker build with --build-arg switch to build different version
+ARG SEAFILE_VERSION=7.0.5
+
+ENV SEAFILE_SERVER=seafile-server
+ENV SEAFILE_VERSION=${SEAFILE_VERSION}
 
 RUN mkdir -p /opt/seafile/ && \
     curl -sSL -o - https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz \
