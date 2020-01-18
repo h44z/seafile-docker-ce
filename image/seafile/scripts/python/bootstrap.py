@@ -85,6 +85,7 @@ def generate_local_nginx_conf():
     context = {
         'https': is_https(),
         'behind_ssl_termination': behind_ssl_termination(),
+        'enable_onlyoffice': use_onlyoffice(),
         'domain': domain,
         'enable_webdav': get_conf_bool('ENABLE_WEBDAV')
     }
@@ -106,6 +107,10 @@ def is_https():
 
 def behind_ssl_termination():
     return get_conf_bool('BEHIND_SSL_TERMINATION')
+
+
+def use_onlyoffice():
+    return get_conf_bool('ENABLE_ONLYOFFICE')
 
 
 def init_seafile_server():
@@ -173,6 +178,22 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('\n')
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
+        if get_conf_bool('ENABLE_ONLYOFFICE'):
+            verify_oo_cert = "True" if is_https() else "False"
+            fp.write('\n')
+            fp.write("ENABLE_ONLYOFFICE = True")
+            fp.write('\n')
+            fp.write('VERIFY_ONLYOFFICE_CERTIFICATE = {verify}'.format(verify=verify_oo_cert))
+            fp.write('\n')
+            fp.write('ONLYOFFICE_APIJS_URL = "{proto}://{domain}/onlyofficeds/web-apps/apps/api/documents/api.js"'.format(proto=proto, domain=domain))
+            fp.write('\n')
+            fp.write('ONLYOFFICE_FILE_EXTENSION = {ext}'.format(ext=get_conf("ONLYOFFICE_FILE_EXTENSION", 
+                "('doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'odt', 'fodt', 'odp', 'fodp', 'ods', 'fods')")))
+            fp.write('\n')
+            fp.write('ONLYOFFICE_EDIT_FILE_EXTENSION = {ext}'.format(ext=get_conf("ONLYOFFICE_EDIT_FILE_EXTENSION", 
+                "('docx', 'pptx', 'xlsx')")))
+            fp.write('\n')
+
 
     # By default ccnet-server binds to the unix socket file
     # "/opt/seafile/ccnet/ccnet.sock", but /opt/seafile/ccnet/ is a mounted

@@ -1,4 +1,5 @@
 version: '3.3'
+
 services:
   db:
     image: mariadb:10.1
@@ -32,6 +33,14 @@ services:
       - memcached
     networks:
       - seafile-net
+
+  # Remove this section if you do not want to use only office integration
+  onlyoffice-documentserver:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice-documentserver
+    networks:
+      - seafile-net
+
 
 networks:
   seafile-net:
