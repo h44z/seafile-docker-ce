@@ -10,7 +10,7 @@ Jinja2==2.8
 MarkupSafe==0.23          # via jinja2
 prettytable==0.7.2
 termcolor==1.1.0
-urllib3==1.19
+urllib3==1.25.7
 Pillow==4.3.0
 pylibmc==1.6.0
 django-pylibmc==0.6.1

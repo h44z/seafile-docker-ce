@@ -206,6 +206,24 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('[Client]\n')
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
+        if get_conf_bool('ENABLE_LDAP'):
+            fp.write('\n')
+            fp.write('[LDAP]\n')
+            fp.write('\n')
+            fp.write('HOST = {host}'.format(host=get_conf("LDAP_HOST", "ldap://localhost")))
+            fp.write('\n')
+            fp.write('BASE = {base}'.format(base=get_conf("LDAP_BASE", "ou=users,dc=example,dc=com")))
+            fp.write('\n')
+            fp.write('USER_DN = {userdn}'.format(userdn=get_conf("LDAP_USER_DN", "cn=admin,dc=example,dc=com")))
+            fp.write('\n')
+            fp.write('PASSWORD = {passwd}'.format(passwd=get_conf("LDAP_PASSWORD", "secret")))
+            fp.write('\n')
+            fp.write('LOGIN_ATTR = {loginattr}'.format(loginattr=get_conf("LDAP_LOGIN_ATTR", "mail")))
+            fp.write('\n')
+            if get_conf("LDAP_FILTER", "") != "":
+                fp.write('FILTER = {filter}'.format(filter=get_conf("LDAP_FILTER", "")))
+                fp.write('\n')
+
     with open(join(topdir, 'conf', 'ccnet.conf'), "r") as fp:
         ccnet_conf_lines = fp.readlines()
     with open(join(topdir, 'conf', 'ccnet.conf'), "w") as fp:

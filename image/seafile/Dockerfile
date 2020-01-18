@@ -9,6 +9,7 @@ RUN mkdir -p /etc/my_init.d
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
 ARG SEAFILE_VERSION=7.0.5
+ARG LDAP_IGNORE_CERT_CHECK=false
 
 ENV SEAFILE_SERVER=seafile-server
 ENV SEAFILE_VERSION=${SEAFILE_VERSION}
@@ -19,6 +20,8 @@ RUN mkdir -p /opt/seafile/ && \
 
 # For using TLS connection to LDAP/AD server with docker-ce.
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
+
+RUN if [ "${LDAP_IGNORE_CERT_CHECK}" = "true" ] ; then echo TLS_REQCERT allow >> /etc/ldap/ldap.conf; fi
 
 ADD scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 
