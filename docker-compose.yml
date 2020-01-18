@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.6'
 
 services:
   db:
@@ -33,18 +33,23 @@ services:
       - memcached
     networks:
       - seafile-net
+      - ldap-net  # Remove this network if not LDAP is used
 
   # Remove this section if you do not want to use only office integration
   onlyoffice-documentserver:
     image: onlyoffice/documentserver:latest
-    container_name: onlyoffice-documentserver
+    container_name: seafile-oods
     networks:
       - seafile-net
 
 
 networks:
   seafile-net:
+    name: seafile-net
     ipam:
       driver: default
       config:
-        - subnet: 172.66.0.0/16
+        - subnet: 172.31.0.0/16
+  ldap-net:  # Remove this network if not LDAP is used
+    external:
+      name: ldap-net

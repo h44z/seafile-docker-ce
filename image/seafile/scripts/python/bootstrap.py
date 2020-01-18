@@ -102,7 +102,7 @@ def generate_local_nginx_conf():
 
 
 def is_https():
-    return get_conf_bool('SEAFILE_SERVER_LETSENCRYPT') or get_conf_bool('BEHIND_SSL_TERMINATION')
+    return get_conf_bool('SEAFILE_SERVER_LETSENCRYPT')
 
 
 def behind_ssl_termination():
@@ -160,7 +160,7 @@ def init_seafile_server():
     call('{} auto -n seafile'.format(setup_script), env=env)
 
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
-    proto = 'https' if is_https() else 'http'
+    proto = 'https' if is_https() or behind_ssl_termination() else 'http'
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write('\n')
         fp.write("""CACHES = {
@@ -179,7 +179,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
         if get_conf_bool('ENABLE_ONLYOFFICE'):
-            verify_oo_cert = "True" if is_https() else "False"
+            verify_oo_cert = "True" if is_https() or behind_ssl_termination() else "False"
             fp.write('\n')
             fp.write("ENABLE_ONLYOFFICE = True")
             fp.write('\n')

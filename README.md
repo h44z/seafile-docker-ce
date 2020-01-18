@@ -13,7 +13,7 @@
 
 
 ## Building the docker image from scratch
-To build the docker image, docker must be installed (at least version 17.06.0). 
+To build the docker image, docker must be installed (at least version 18.02.0). 
 
 After the dependcies have been set up, change to the image directory and build the images using make:
 
@@ -28,7 +28,7 @@ make server
 ```
 
 ## Running Seafile 7.x.x with docker-compose
-Make sure that you have installed Docker Compose with version 1.19.0 or higher.
+Make sure that you have installed Docker Compose with version 1.21.0 or higher.
 
 ```
 # get the sources
