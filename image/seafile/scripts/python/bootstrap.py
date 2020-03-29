@@ -14,7 +14,7 @@ import time
 import re
 
 from utils import (
-    call, get_conf, get_conf_bool,get_install_dir, loginfo,
+    call, get_conf, get_conf_bool, get_install_dir, loginfo,
     get_script, render_template, get_seafile_version, eprint,
     cert_has_valid_days, get_version_stamp_file, update_version_stamp,
     wait_for_mysql, wait_for_nginx, read_version_stamp

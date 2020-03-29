@@ -14,7 +14,7 @@ import sys
 import time
 
 from utils import (
-    call, get_conf, get_install_dir, get_script, get_command_output,
+    call, get_conf, get_conf_bool, get_install_dir, get_script, get_command_output,
     render_template, wait_for_mysql, setup_logging, logdbg, loginfo
 )
 from upgrade import check_upgrade
@@ -75,6 +75,9 @@ def main():
     with open(password_file, 'w') as fp:
         json.dump(admin_pw, fp)
 
+    if get_conf_bool('SPRINTERNET_CUSTOMIZATIONS'):
+        loginfo("Applying sprinternet customizations ...")
+        call('/scripts/replace_seahub_oauth.sh')
 
     try:
         call('{} start'.format(get_script('seafile.sh')))
