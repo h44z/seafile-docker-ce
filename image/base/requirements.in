@@ -1,12 +1,21 @@
 # -*- mode: conf -*-
 
 # Required by seafile/seahub
-python-memcached==1.58
-urllib3==1.25.7
+Pillow
+pylibmc
+captcha
+Jinja2
+python-memcached
+urllib3
+sqlalchemy
+psd-tools
+django-pylibmc
+django-simple-captcha
+requests
+requests_oauthlib
 
 # Utility libraries
-click==6.6
-termcolor==1.1.0
-prettytable==0.7.2
-colorlog==2.7.0
-Jinja2==2.8
+click
+termcolor
+prettytable
+colorlog

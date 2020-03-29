@@ -1,7 +1,7 @@
 # coding: UTF-8
 
 from __future__ import print_function
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from contextlib import contextmanager
 import os
 import datetime

@@ -8,7 +8,7 @@ WORKDIR /opt/seafile
 RUN mkdir -p /etc/my_init.d
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
-ARG SEAFILE_VERSION=7.0.5
+ARG SEAFILE_VERSION=7.1.3
 ARG LDAP_IGNORE_CERT_CHECK=false
 
 ENV SEAFILE_SERVER=seafile-server
