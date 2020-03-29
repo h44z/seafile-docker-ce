@@ -4,6 +4,7 @@ services:
   db:
     image: mariadb:10.1
     container_name: seafile-mysql
+    restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWD}
       - MYSQL_LOG_CONSOLE=true
@@ -15,6 +16,7 @@ services:
   memcached:
     image: memcached:1.5.6
     container_name: seafile-memcached
+    restart: unless-stopped
     entrypoint: memcached -m 256
     networks:
       - seafile-net
@@ -22,6 +24,7 @@ services:
   seafile:
     image: h44z/seafile-ce:${VERSION:-7.0.5}
     container_name: seafile
+    restart: unless-stopped
     ports:
       - "${HTTP_PORT:-80}:80"
 #      - "${HTTPS_PORT:-443}:443"  # If https is enabled, cancel the comment.
@@ -38,6 +41,7 @@ services:
   # Remove this section if you do not want to use only office integration
   onlyoffice-documentserver:
     image: onlyoffice/documentserver:latest
+    restart: unless-stopped
     container_name: seafile-oods
     networks:
       - seafile-net
