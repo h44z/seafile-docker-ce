@@ -1,4 +1,4 @@
-# Seafile Community Edition - Docker Version
+# Seafile Community Edition - Simple and Clean Docker Version
 
 [![Docker Stars](https://img.shields.io/docker/stars/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
