@@ -9,7 +9,7 @@ ifeq ($(IS_ENV_PRESENT), yes)
 	export $(shell sed 's/=.*//' ../.env)
 endif
 
-server_image=h44z/seafile-ce:$(SEAFILE_VERSION)
+server_image=h44z/seafile-ce:${SEAFILE_VERSION}
 latest_server_image=h44z/seafile-ce:latest
 
 all:
