@@ -9,9 +9,7 @@ ifeq ($(IS_ENV_PRESENT), yes)
 	export $(shell sed 's/=.*//' ../.env)
 endif
 
-server_version=${VERSION}
-
-server_image=h44z/seafile-ce:$(server_version)
+server_image=h44z/seafile-ce:$(SEAFILE_VERSION)
 latest_server_image=h44z/seafile-ce:latest
 
 all:
@@ -20,8 +18,8 @@ all:
 	@echo
 
 server:
-	@echo Building seafile server version ${VERSION}
-	cd seafile && docker build --no-cache -t $(server_image) . --build-arg SEAFILE_VERSION=${VERSION} \
+	@echo Building seafile server version ${SEAFILE_VERSION}
+	cd seafile && docker build --no-cache -t $(server_image) . --build-arg SEAFILE_VERSION=${SEAFILE_VERSION} \
 		--build-arg LDAP_IGNORE_CERT_CHECK=${LDAP_IGNORE_CERT_CHECK}
 
 push-server:

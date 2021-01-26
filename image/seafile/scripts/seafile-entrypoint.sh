@@ -40,7 +40,6 @@ autorun() {
   if [ $OLD_VERSION != $VERSION ]; then
     full_update
   fi
-  echo $VERSION > $DATADIR/current_version
   # Needed to check the return code
   set +e
   control_seafile "start"
@@ -86,7 +85,8 @@ choose_setup() {
     set -u
     setup_sqlite
   fi
-
+  echo "Setup finished, storing current version $VERSION"
+  echo $VERSION > $DATADIR/current_version
 }
 
 setup_mysql() {
@@ -237,6 +237,7 @@ link_files() {
 
 keep_in_foreground() {
   echo "Running main progress in foreground now..."
+  echo "Logfiles can be found under $BASEPATH/logs"
   # As there seems to be no way to let Seafile processes run in the foreground we
   # need a foreground process. This has a dual use as a supervisor script because
   # as soon as one process is not running, the command returns an exit code >0
@@ -313,20 +314,26 @@ full_update(){
   echo ""
   # Iterate through all the major upgrade scripts and apply them
   for i in `ls ${INSTALLPATH}/upgrade/`; do
+    # Search for first major version upgrade, ls results are ordered =)
     if [ `echo $i | grep "upgrade_${OLD_MAJOR_VERSION}"` ]; then
       EXECUTE=1
     fi
+    # Apply the first major update and all following ones
     if [ $EXECUTE ] && [ `echo $i | grep upgrade` ]; then
       echo "Running update $i"
       update $i || exit
+      echo "Finished update $i"
     fi
   done
-  # When all the major upgrades are done, perform a minor upgrade
+  # When all the major upgrades are done, perform a minor upgrade.
+  # After performing a major upgrade, no minor update is needed.
   if [ -z $EXECUTE ]; then
     echo "Running minor upgrade"
-    update minor-upgrade.sh
-    echo $VERSION > $DATADIR/current_version
+    update minor-upgrade.sh || exit
+    echo "Finished minor upgrade"
   fi
+  echo $VERSION > $DATADIR/current_version
+  echo "Finished all updates!"
 }
 
 update(){

@@ -1,3 +1,9 @@
+# Seafile Community Edition - Docker Version
+
+[![Docker Stars](https://img.shields.io/docker/stars/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
+[![Docker Build](https://img.shields.io/docker/automated/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
+[![Layers](https://images.microbadger.com/badges/image/h44z/seafile-ce.svg)](https://microbadger.com/images/h44z/seafile-ce/)
 
 ## About
 
