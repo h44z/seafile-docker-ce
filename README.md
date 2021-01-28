@@ -7,7 +7,7 @@
 
 ## About
 
-- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 8.0.2.
+- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 8.0.3.
 
 - The main goal of this image is to provide a really simple and clean docker image for Seafile Community Edition.
  The official docker image is quite complex and hard to extend or modify. This image instead provides a simple way to deploy a standardized Seafile instance with Docker.
