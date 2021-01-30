@@ -6,7 +6,7 @@ ENV TZ=Europe/Vienna
 # For support set local time zone.
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     procps default-libmysqlclient-dev python3 python3-setuptools python3-pip \
-    libnss-ldap libpam-ldap ldap-utils curl sqlite3 tzdata locales && \
+    ldap-utils curl sqlite3 tzdata locales && \
   pip3 install --timeout=3600 \
     future mysqlclient Pillow pylibmc pyjwt==1.7.1 captcha jinja2 sqlalchemy \
     django-pylibmc django-simple-captcha python3-ldap && \
