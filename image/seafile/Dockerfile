@@ -5,9 +5,10 @@ ENV TZ=Europe/Vienna
 
 # For support set local time zone.
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
-    procps default-libmysqlclient-dev python3 python3-setuptools python3-pip curl sqlite3 tzdata locales && \
+    procps default-libmysqlclient-dev python3 python3-setuptools python3-pip \
+    libnss-ldap libpam-ldap ldap-utils curl sqlite3 tzdata locales && \
   pip3 install --timeout=3600 \
-    future mysqlclient Pillow pylibmc captcha jinja2 sqlalchemy \
+    future mysqlclient Pillow pylibmc pyjwt==1.7.1 captcha jinja2 sqlalchemy \
     django-pylibmc django-simple-captcha python3-ldap && \
   sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen && \
   ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
@@ -21,7 +22,6 @@ WORKDIR /opt/seafile
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
 ARG SEAFILE_VERSION=8.0.3
-ARG LDAP_IGNORE_CERT_CHECK=false
 
 ENV SEAFILE_VERSION=${SEAFILE_VERSION}
 
@@ -32,8 +32,6 @@ RUN mkdir -p /opt/seafile/ /seafile/ && \
 
 # For using TLS connection to LDAP/AD server with docker-ce.
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
-
-RUN if [ "${LDAP_IGNORE_CERT_CHECK}" = "true" ] ; then echo TLS_REQCERT allow >> /etc/ldap/ldap.conf; fi
 
 COPY scripts /scripts
 

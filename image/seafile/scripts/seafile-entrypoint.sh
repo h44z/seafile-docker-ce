@@ -136,16 +136,21 @@ setup_seahub() {
   sed -i 's/= ask_admin_email()/= '"\"${SEAFILE_ADMIN}\""'/' ${INSTALLPATH}/check_init_admin.py
   sed -i 's/= ask_admin_password()/= '"\"${SEAFILE_ADMIN_PW}\""'/' ${INSTALLPATH}/check_init_admin.py
 
+  control_seafile "start"
+
+  . /tmp/seafile.env; python3 -t ${INSTALLPATH}/check_init_admin.py
+}
+
+special_customizations() {
   if [ "${SPRINTERNET_CUSTOMIZATIONS:-false}" = "true" ]; then
     echo Patching files...
     sed -i "/{% block main_content %}/a <script type=\"text/javascript\">window.location.replace(\"{% url 'oauth_login' %}\");</script>" ${INSTALLPATH}/seahub/seahub/templates/registration/login.html
     sed -i '/<\/div>/a <script type="text/javascript">window.location.replace("https://account.sprinternet.at/ssologout?src=seafile");</script>' ${INSTALLPATH}/seahub/seahub/templates/registration/logout.html
     echo Patching completed...
   fi
-
-  control_seafile "start"
-
-  . /tmp/seafile.env; python3 -t ${INSTALLPATH}/check_init_admin.py
+  if [ "${LDAP_IGNORE_CERT_CHECK:-false}" = "true" ]; then
+    echo TLS_REQCERT allow >> /etc/ldap/ldap.conf;
+  fi
 }
 
 move_and_link() {
@@ -385,6 +390,7 @@ trap trapped SIGINT SIGTERM
 trap 'handle_error $? $LINENO' EXIT
 
 move_and_link
+special_customizations
 case $MODE in
   "autorun" | "run")
     autorun

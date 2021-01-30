@@ -22,7 +22,7 @@ services:
       - seafile-net
 
   seafile:
-    image: h44z/seafile-ce:${VERSION:-8.0.3}
+    image: h44z/seafile-ce:${SEAFILE_VERSION:-8.0.3}
     container_name: seafile
     restart: unless-stopped
     ports:
@@ -44,9 +44,12 @@ services:
     image: onlyoffice/documentserver:latest
     restart: unless-stopped
     container_name: seafile-oods
+    ports:
+      - "${ONLYOFFICE_PORT:-8081}:80"
+    volumes:
+      - ${ONLYOFFICE_CONFIG:-./data/onlyoffice/local.conf}:/etc/onlyoffice/documentserver/local.json
     networks:
       - seafile-net
-
 
 networks:
   seafile-net:
