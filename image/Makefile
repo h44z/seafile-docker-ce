@@ -19,8 +19,7 @@ all:
 
 server:
 	@echo Building seafile server version ${SEAFILE_VERSION}
-	cd seafile && docker build --no-cache -t $(server_image) . --build-arg SEAFILE_VERSION=${SEAFILE_VERSION} \
-		--build-arg LDAP_IGNORE_CERT_CHECK=${LDAP_IGNORE_CERT_CHECK}
+	cd seafile && docker build --no-cache -t $(server_image) . --build-arg SEAFILE_VERSION=${SEAFILE_VERSION}
 
 push-server:
 	docker tag $(server_image) $(latest_server_image)
