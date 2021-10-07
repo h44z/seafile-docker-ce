@@ -22,7 +22,7 @@ services:
       - seafile-net
 
   seafile:
-    image: h44z/seafile-ce:${SEAFILE_VERSION:-8.0.4}
+    image: h44z/seafile-ce:${SEAFILE_VERSION:-8.0.7}
     container_name: seafile
     restart: unless-stopped
     ports:
