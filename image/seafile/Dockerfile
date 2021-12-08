@@ -5,10 +5,10 @@ ENV TZ=Europe/Vienna
 
 # For support set local time zone.
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
-    procps default-libmysqlclient-dev python3 python3-setuptools python3-pip \
+    procps default-libmysqlclient-dev libjpeg-dev zlib1g-dev python3 python3-setuptools python3-pip \
     ldap-utils curl sqlite3 tzdata locales && \
   pip3 install --timeout=3600 \
-    future mysqlclient Pillow pylibmc pyjwt==1.7.1 captcha jinja2 sqlalchemy \
+    django==2.2.* future mysqlclient pymysql Pillow pylibmc pyjwt==1.7.1 captcha jinja2 sqlalchemy==1.4.3 \
     django-pylibmc django-simple-captcha python3-ldap && \
   sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen && \
   ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
