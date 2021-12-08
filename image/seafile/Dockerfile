@@ -1,5 +1,5 @@
 FROM debian:buster-slim
-MAINTAINER Christoph Haas <christoph.h44z@gmail.com>
+LABEL org.opencontainers.image.authors="christoph.h44z@gmail.com"
 
 ENV TZ=Europe/Vienna
 
@@ -21,7 +21,7 @@ RUN curl -L https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VE
 WORKDIR /opt/seafile
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
-ARG SEAFILE_VERSION=8.0.7
+ARG SEAFILE_VERSION=8.0.8
 
 ENV SEAFILE_VERSION=${SEAFILE_VERSION}
 
