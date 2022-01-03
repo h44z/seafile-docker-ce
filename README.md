@@ -3,11 +3,10 @@
 [![Docker Stars](https://img.shields.io/docker/stars/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
 [![Docker Build](https://img.shields.io/docker/automated/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
-[![Layers](https://images.microbadger.com/badges/image/h44z/seafile-ce.svg)](https://microbadger.com/images/h44z/seafile-ce/)
 
 ## About
 
-- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 8.0.8.
+- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 9.0.2.
 
 - The main goal of this image is to provide a really simple and clean docker image for Seafile Community Edition.
  The official docker image is quite complex and hard to extend or modify. This image instead provides a simple way to deploy a standardized Seafile instance with Docker.
@@ -43,7 +42,7 @@ make server
 ```
 
 
-## Running Seafile 8.x.x with docker-compose
+## Running Seafile 9.x.x with docker-compose
 Make sure that you have installed Docker Compose with version 1.21.0 or higher. Setting up Seafile is really easy and can be (or should be) done via Docker Compose. All important data is stored under `/seafile` so you should be mounting a volume there (recommended), as shown in the example configurations, or at the respective subdirectories.
 
 The first step is to create a `.env` file by copying the provided .env.dist file:
@@ -73,9 +72,20 @@ Using the `MODE` environment variable, the startup behaviour of the container ca
 
 A sample docker-compose file is provided within this repository.
 
+For a clean install, only office might throw an error (mounting directory onto a file). If that happens ensure that the mount point already exists on the host system (see https://manual.seafile.com/deploy/only_office/ for details):
+
+```bash
+mkdir -p data/onlyoffice
+cp sample-configs/local.json data/onlyoffice/local.conf
+```
+
+
+## Upgrading from Seafile 8.x.x
+Simply use the newer 9.x.x Docker image.
+
 
 ## Upgrading from Seafile 7.x.x
-This version of the image is designed to work with version 8.x.x.
+This version of the image is designed to work with version 9.x.x.
 The previous version of this Docker image was based on the official Docker image, thus a few changes have to be made in order to upgrade to the new version.
 
 Changes:
@@ -94,6 +104,7 @@ Take a look at .env.dist for all available environment variables. Copy `.env.dis
 After the Seafile container has been started at least once, the mounted volume for the `/seafile` directory should contain a folder `conf`. Take a look at the official manual to check out which settings can be changed.
 
 HINT: After the initial setup (first run), changing the environment variables in .env does not reflect to the configuration files!
+
 
 ### Troubleshooting
 

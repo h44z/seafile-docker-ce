@@ -5,15 +5,24 @@ BASEPATH=${BASEPATH:-"/opt/seafile"}
 INSTALLPATH=${INSTALLPATH:-"${BASEPATH}/$(ls -1 ${BASEPATH} | grep -E '^seafile-server-[0-9.-]+')"}
 VERSION=$(echo $INSTALLPATH | grep -oE [0-9.]+)
 OLD_VERSION=$(cat $DATADIR/current_version 2> /dev/null || echo $VERSION)
+OLD_VERSION_TMP="$(cat $DATADIR/current_version.tmp 2> /dev/null)"
 MAJOR_VERSION=$(echo $VERSION | cut -d. -f 1-2)
 OLD_MAJOR_VERSION=$(echo $OLD_VERSION | cut -d. -f 1-2)
 VIRTUAL_PORT=${VIRTUAL_PORT:-"8000"}
+PYTHON_VERSION_STR=$(python3 --version)
+PYTHON_VERSION=${PYTHON_VERSION_STR#"Python "}
+PYTHON_MAJOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f 1)
 
-python3 --version
+echo "Starting seafile container..."
+echo "Python version: $PYTHON_VERSION ($PYTHON_MAJOR_VERSION)"
 uname -a
+
+
+if [ ! -z "$OLD_VERSION_TMP" ]; then
+  echo "Unclean setup detected, tried to install version $OLD_VERSION_TMP"
+fi
 echo "Current seafile version: $VERSION ($MAJOR_VERSION)"
 echo "Old seafile version: $OLD_VERSION ($OLD_MAJOR_VERSION)"
-
 
 set -e
 set -u
@@ -36,19 +45,29 @@ handle_error() {
 }
 
 autorun() {
+  echo "autorun"
+  prepare_admin_creds
+
   # Update if neccessary
   if [ $OLD_VERSION != $VERSION ]; then
     full_update
   fi
+
+  # Check if the initial setup script finished
+  if [ ! -f ${BASEPATH}/conf/ccnet.conf ]; then
+    choose_setup
+  fi
+
   # Needed to check the return code
   set +e
   control_seafile "start"
   local RET=$?
   set -e
-  # Try an initial setup on error
+  # Try another initial setup on error
   if [ ${RET} -eq 255 ]
   then
     choose_setup
+    # re-start seafile after the initial setup
     control_seafile "start"
   elif [ ${RET} -gt 0 ]
   then
@@ -74,6 +93,11 @@ run_only() {
 }
 
 choose_setup() {
+  echo "Initiating seafile setup script..."
+  # Prepare setup, setup-seafile.sh will recreate the symbolic link
+  rm -f ${BASEPATH}/seafile-server-latest
+
+  echo $VERSION > $DATADIR/current_version.tmp
   set +u
   # If $MYSQL_SERVER is set, we assume MYSQL setup is intended,
   # otherwise sqlite
@@ -87,14 +111,13 @@ choose_setup() {
   fi
   echo "Setup finished, storing current version $VERSION"
   echo $VERSION > $DATADIR/current_version
+  rm -f $DATADIR/current_version.tmp
 }
 
 setup_mysql() {
   echo "setup_mysql"
 
-  # Wait for MySQL to boot up
-  DOCKERIZE_TIMEOUT=${DOCKERIZE_TIMEOUT:-"60s"}
-  dockerize -timeout ${DOCKERIZE_TIMEOUT} -wait tcp://${MYSQL_SERVER}:${MYSQL_PORT:-3306}
+  wait_for_db
 
   set +u
   OPTIONAL_PARMS="$([ -n "${MYSQL_ROOT_PASSWORD}" ] && printf '%s' "-r ${MYSQL_ROOT_PASSWORD}")"
@@ -112,7 +135,6 @@ setup_mysql() {
     -q "${MYSQL_USER_HOST:-"%"}" \
     ${OPTIONAL_PARMS}
 
-  setup_seahub
   move_and_link
 }
 
@@ -125,20 +147,7 @@ setup_sqlite() {
     -p "${SEAFILE_PORT}" \
     -d "${SEAFILE_DATA_DIR}"
 
-  setup_seahub
   move_and_link
-}
-
-setup_seahub() {
-  # Setup Seahub
-
-  # From https://github.com/haiwen/seafile-server-installer-cn/blob/master/seafile-server-ubuntu-14-04-amd64-http
-  sed -i 's/= ask_admin_email()/= '"\"${SEAFILE_ADMIN}\""'/' ${INSTALLPATH}/check_init_admin.py
-  sed -i 's/= ask_admin_password()/= '"\"${SEAFILE_ADMIN_PW}\""'/' ${INSTALLPATH}/check_init_admin.py
-
-  control_seafile "start"
-
-  . /tmp/seafile.env; python3 -t ${INSTALLPATH}/check_init_admin.py
 }
 
 special_customizations() {
@@ -154,6 +163,7 @@ special_customizations() {
 }
 
 move_and_link() {
+  echo "Re-linking seafile distribution files..."
   # As seahub.db is normally in the root dir of seafile (/opt/seafile)
   # SEAHUB_DB_DIR needs to be defined if it should be moved elsewhere under /seafile
   local SH_DB_DIR="${DATADIR}/${SEAHUB_DB_DIR}"
@@ -161,7 +171,9 @@ move_and_link() {
   control_seahub "stop"
   control_seafile "stop"
 
+  # Move distribution files to the docker volume
   move_files "${SH_DB_DIR}"
+  # Create symbolic links from the docker volume
   link_files "${SH_DB_DIR}"
 
   if [ ! -w ${DATADIR} ]; then
@@ -265,12 +277,27 @@ prepare_env() {
   export CCNET_CONF_DIR="${BASEPATH}/ccnet"
   export SEAFILE_CONF_DIR="${SEAFILE_DATA_DIR}"
   export SEAFILE_CENTRAL_CONF_DIR="${BASEPATH}/conf"
-  export PYTHONPATH=${INSTALLPATH}/seafile/lib/python3.6/site-packages:${INSTALLPATH}/seafile/lib64/python3.6/site-packages:${INSTALLPATH}/seahub:${INSTALLPATH}/seahub/thirdpart:${INSTALLPATH}/seafile/lib/python3.6/site-packages:${INSTALLPATH}/seafile/lib64/python3.6/site-packages:${PYTHONPATH:-}
+  export PYTHONPATH=${PYTHONPATH:-}:${INSTALLPATH}/seafile/lib/python${PYTHON_MAJOR_VERSION}/site-packages:${INSTALLPATH}/seahub:${INSTALLPATH}/seahub/thirdpart
 
 _EOF_
 }
 
+prepare_admin_creds() {
+  if [ -f "${BASEPATH}/conf/admin.txt" ]; then
+    echo "Keeping existing admin credentials (from conf/admin.txt)"
+  else
+    mkdir -p ${BASEPATH}/conf
+    cat << _EOF_ > ${BASEPATH}/conf/admin.txt
+    {
+      "email": "${SEAFILE_ADMIN}",
+      "password": "${SEAFILE_ADMIN_PW}"
+    }
+_EOF_
+  fi
+}
+
 control_seafile() {
+  echo "Executing seafile action: $@"
   . /tmp/seafile.env; ${INSTALLPATH}/seafile.sh "$@"
   local RET=$?
   if [ $RET -gt 0 ]; then
@@ -280,6 +307,7 @@ control_seafile() {
 }
 
 control_seahub() {
+  echo "Executing seahub action: $@"
   . /tmp/seafile.env; ${INSTALLPATH}/seahub.sh "$@"
   local RET=$?
   if [ $RET -gt 0 ]; then
@@ -374,6 +402,14 @@ maintenance(){
   tail -f /dev/null
 }
 
+wait_for_db(){
+  if [ -n "${MYSQL_SERVER}" ]; then
+    # Wait for MySQL to boot up
+    DOCKERIZE_TIMEOUT=${DOCKERIZE_TIMEOUT:-"60s"}
+    dockerize -timeout ${DOCKERIZE_TIMEOUT} -wait tcp://${MYSQL_SERVER}:${MYSQL_PORT:-3306}
+  fi
+}
+
 
 # Fill vars with defaults if empty
 if [ -z ${MODE+x} ]; then
@@ -388,6 +424,8 @@ prepare_env
 
 trap trapped SIGINT SIGTERM
 trap 'handle_error $? $LINENO' EXIT
+
+wait_for_db
 
 move_and_link
 special_customizations
