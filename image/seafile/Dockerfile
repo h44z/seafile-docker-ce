@@ -8,7 +8,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     procps default-libmysqlclient-dev libjpeg-dev zlib1g-dev python3 python3-setuptools python3-pip \
     ldap-utils curl sqlite3 tzdata locales && \
   pip3 install --timeout=3600 \
-    django==2.2.* future mysqlclient pymysql Pillow pylibmc pyjwt==1.7.1 captcha jinja2 sqlalchemy==1.4.3 \
+    django==3.2.* future mysqlclient pymysql Pillow pylibmc pyjwt==1.7.1 captcha jinja2 sqlalchemy==1.4.3 \
     django-pylibmc django-simple-captcha python3-ldap pycryptodome==3.12.0 cffi==1.14.0 && \
   sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen && \
   ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
@@ -21,7 +21,7 @@ RUN curl -L https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VE
 WORKDIR /opt/seafile
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
-ARG SEAFILE_VERSION=9.0.2
+ARG SEAFILE_VERSION=9.0.4
 
 ENV SEAFILE_VERSION=${SEAFILE_VERSION}
 
