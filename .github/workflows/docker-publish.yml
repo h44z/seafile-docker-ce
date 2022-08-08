@@ -28,7 +28,7 @@ jobs:
 
       - name: Get Version
         shell: bash
-        run: cat .env.dist >> $GITHUB_ENV
+        run: cat .env.dist | grep -Ev "^#|^$" >> $GITHUB_ENV
         id: get_version
 
       - name: Log in to Docker Hub
@@ -78,7 +78,7 @@ jobs:
 
       - name: Get Version
         shell: bash
-        run: cat .env.dist >> $GITHUB_ENV
+        run: cat .env.dist | grep -Ev "^#|^$" >> $GITHUB_ENV
         id: get_version
 
       # Login against a Docker registry except on PR
