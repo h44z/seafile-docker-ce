@@ -2,7 +2,7 @@
 
 [![Docker Stars](https://img.shields.io/docker/stars/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
-[![Docker Build](https://img.shields.io/docker/automated/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
+[![Docker Build](https://github.com/h44z/seafile-docker-ce/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/h44z/seafile-docker-ce/actions/workflows/docker-publish.yml)
 
 ## About
 
