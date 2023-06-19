@@ -151,12 +151,6 @@ setup_sqlite() {
 }
 
 special_customizations() {
-  if [ "${SPRINTERNET_CUSTOMIZATIONS:-false}" = "true" ]; then
-    echo Patching files...
-    sed -i "/{% block main_content %}/a <script type=\"text/javascript\">window.location.replace(\"{% url 'oauth_login' %}\");</script>" ${INSTALLPATH}/seahub/seahub/templates/registration/login.html
-    sed -i '/<\/div>/a <script type="text/javascript">window.location.replace("https://account.sprinternet.at/ssologout?src=seafile");</script>' ${INSTALLPATH}/seahub/seahub/templates/registration/logout.html
-    echo Patching completed...
-  fi
   if [ "${LDAP_IGNORE_CERT_CHECK:-false}" = "true" ]; then
     echo TLS_REQCERT allow >> /etc/ldap/ldap.conf;
   fi
@@ -357,6 +351,7 @@ full_update(){
       update $i || exit
       echo "Finished update $i"
     fi
+    echo "Major upgrade finished, make sure to update configurations according to the upgrade manual: https://manual.seafile.com/upgrade/upgrade/"
   done
   # When all the major upgrades are done, perform a minor upgrade.
   # After performing a major upgrade, no minor update is needed.

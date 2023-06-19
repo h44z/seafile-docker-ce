@@ -8,20 +8,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     procps default-libmysqlclient-dev libjpeg-dev zlib1g-dev python3 python3-setuptools python3-pip \
     ldap-utils curl sqlite3 tzdata locales memcached libmemcached-dev libffi-dev && \
   pip3 install --timeout=3600 \
-    django==3.2.* future mysqlclient pymysql Pillow pylibmc pyjwt==1.7.1 captcha jinja2 sqlalchemy==1.4.3 \
-    django-pylibmc django-simple-captcha python3-ldap pycryptodome==3.12.0 cffi==1.14.0 && \
+    django==3.2.* future==0.18.* mysqlclient==2.1.* \
+    pymysql pillow==9.3.* pylibmc captcha==0.4 markupsafe==2.0.1 jinja2 sqlalchemy==1.4.3 \
+    psd-tools django-pylibmc django_simple_captcha==0.5.* djangosaml2==1.5.* pysaml2==7.2.* pycryptodome==3.16.* cffi==1.15.1 lxml && \
   sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen && \
   ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
   apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* 
 
-ENV DOCKERIZE_VERSION v0.6.1
+ENV DOCKERIZE_VERSION v0.7.0
 RUN curl -L https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar -xz -C /usr/local/bin
 
 
 WORKDIR /opt/seafile
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
-ARG SEAFILE_VERSION=9.0.10
+ARG SEAFILE_VERSION=10.0.1
 
 ENV SEAFILE_VERSION=${SEAFILE_VERSION}
 
