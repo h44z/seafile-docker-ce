@@ -6,7 +6,7 @@
 
 ## About
 
-- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 10.0.1.
+- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 11.0.5.
 
 - The main goal of this image is to provide a really simple and clean docker image for Seafile Community Edition.
  The official docker image is quite complex and hard to extend or modify. This image instead provides a simple way to deploy a standardized Seafile instance with Docker.
@@ -42,7 +42,7 @@ make server
 ```
 
 
-## Running Seafile 10.x.x with docker-compose
+## Running Seafile 11.x.x with docker-compose
 Make sure that you have installed Docker Compose with version 1.21.0 or higher. Setting up Seafile is really easy and can be (or should be) done via Docker Compose. All important data is stored under `/seafile` so you should be mounting a volume there (recommended), as shown in the example configurations, or at the respective subdirectories.
 
 The first step is to create a `.env` file by copying the provided .env.dist file:
@@ -78,6 +78,9 @@ For a clean install, only office might throw an error (mounting directory onto a
 mkdir -p data/onlyoffice
 cp sample-configs/local.json data/onlyoffice/local.conf
 ```
+
+## Upgrading from Seafile 10.x.x
+Simply use the newer 11.x.x Docker image. If you used LDAP, please follow the [official upgrade instructions](https://manual.seafile.com/upgrade/upgrade_notes_for_11.0.x/) and update the settings accordingly.
 
 ## Upgrading from Seafile 9.x.x
 Simply use the newer 10.x.x Docker image and enable the notification server in your seafile.conf.

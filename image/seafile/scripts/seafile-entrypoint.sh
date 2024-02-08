@@ -45,7 +45,7 @@ handle_error() {
 }
 
 autorun() {
-  echo "autorun"
+  echo "Automatic startup of Seafile $VERSION (old version $OLD_VERSION)"
   prepare_admin_creds
 
   # Update if neccessary
@@ -340,8 +340,8 @@ full_update(){
   echo "---------------------------------------"
   echo ""
   # Iterate through all the major upgrade scripts and apply them
-  for i in `ls ${INSTALLPATH}/upgrade/`; do
-    # Search for first major version upgrade, ls results are ordered =)
+  for i in `ls ${INSTALLPATH}/upgrade/ | grep upgrade | sort -V`; do
+    # Search for first major version upgrade, ls results are ordered (oldest versions first)
     if [ `echo $i | grep "upgrade_${OLD_MAJOR_VERSION}"` ]; then
       EXECUTE=1
     fi
