@@ -5,4 +5,6 @@
 *.pyc
 .env
 data/
+seafile-logs/
+dbbackup/
 docker-compose.override.yml

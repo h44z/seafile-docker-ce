@@ -18,21 +18,23 @@
           "browser": true
         },
         "inbox": {
-          "header": "Authorization"
+          "header": "Authorization",
+          "inBody": false
         },
         "outbox": {
-          "header": "Authorization"
+          "header": "Authorization",
+          "inBody": false
         }
       },
       "secret": {
         "inbox": {
-          "string": "mysecretCHANGEME"
+          "string": "Supers3cr3t"
         },
         "outbox": {
-          "string": "mysecretCHANGEME"
+          "string": "Supers3cr3t"
         },
         "session": {
-          "string": "mysecretCHANGEME"
+          "string": "Supers3cr3t"
         }
       },
       "autoAssembly": {
@@ -43,5 +45,10 @@
   },
   "rabbitmq": {
     "url": "amqp://guest:guest@localhost"
+  },
+  "storage": {
+    "fs": {
+      "secretString": "AnotherSECr3t"
+    }
   }
 }
