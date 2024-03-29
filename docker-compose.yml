@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   db:
     image: mariadb:10.11
@@ -87,9 +85,9 @@ services:
     image: onlyoffice/documentserver:latest
     restart: unless-stopped
     container_name: seafile-oods
-    volumes:
+    #volumes:
       # Optional: see https://manual.seafile.com/deploy/only_office/
-      - ${ONLYOFFICE_CONFIG:-./data/onlyoffice/local.conf}:/etc/onlyoffice/documentserver/local.json
+      #- ${ONLYOFFICE_CONFIG:-./data/onlyoffice/local.conf}:/etc/onlyoffice/documentserver/local.json
     environment:
       - JWT_ENABLED=true
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-Supers3cr3t}
@@ -122,6 +120,9 @@ services:
       - '--log.level=DEBUG'
       - '--api=true'
       - '--api.dashboard=true'
+      - '--accesslog=true'
+      - '--accesslog.filepath=/logs/access.log'
+      - '--accesslog.bufferingsize=100'
       - '--providers.docker.endpoint=unix:///var/run/docker.sock'
       - '--providers.docker.exposedbydefault=false'
       - '--entrypoints.web.address=:80'
@@ -137,6 +138,7 @@ services:
     volumes:
       - acme-certs:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${TRAEFIK_LOG_DIR:-./traefik-logs}:/logs
     networks:
       - seafile-net
       - proxy-net

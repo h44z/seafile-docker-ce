@@ -6,5 +6,6 @@
 .env
 data/
 seafile-logs/
+traefik-logs/
 dbbackup/
 docker-compose.override.yml
