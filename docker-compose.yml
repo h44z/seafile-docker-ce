@@ -6,6 +6,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_LOG_CONSOLE=true
+      # To upgrade mariadb from an older version, uncomment the line below
+      #- MARIADB_AUTO_UPGRADE=1
     volumes:
       - ${SEAFILE_DB_DATA:-./data/db}:/var/lib/mysql
     networks:
@@ -28,11 +30,12 @@ services:
         max-file: "3"
 
   seafile:
-    image: h44z/seafile-ce:${SEAFILE_VERSION:-11.0.5}
+    image: h44z/seafile-ce:${SEAFILE_VERSION:-11.0.6}
     container_name: seafile
     restart: unless-stopped
     volumes:
       - ${SEAFILE_SHARED_DATA:-./data/seafile}:/seafile
+      - ${SEAFILE_LOG_DIR:-./seafile-logs}:/opt/seafile/logs
     env_file:
       - .env
     depends_on:

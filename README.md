@@ -6,13 +6,14 @@
 
 ## About
 
-- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 11.0.5.
+- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 11.0.6.
 
 - The main goal of this image is to provide a really simple and clean docker image for Seafile Community Edition.
  The official docker image is quite complex and hard to extend or modify. This image instead provides a simple way to deploy a standardized Seafile instance with Docker.
 
 - Automated features that come with this Docker image:
-  - newest seafile version at rebuild
+  - Newest Seafile version at rebuild
+  - Traefik v2 reverse proxy for HTTPS
   - Automatically runs upgrade scripts (when pulling a newer image) provided by seafile
   - Configurable to run with MySQL/MariaDB or SQLite
   - Auto-setup at initial run
@@ -25,7 +26,7 @@
 - It is largly based on this docker image: https://github.com/Gronis/docker-seafile. 
 
 ## Building the docker image from scratch
-To build the docker image, docker must be installed (at least version 18.02.0). 
+To build the docker image, docker must be installed (at least version 26.0.0). 
 
 After the dependcies have been set up, change to the image directory and build the images using make:
 
@@ -43,7 +44,7 @@ make server
 
 
 ## Running Seafile 11.x.x with docker-compose
-Make sure that you have installed Docker Compose with version 1.21.0 or higher. Setting up Seafile is really easy and can be (or should be) done via Docker Compose. All important data is stored under `/seafile` so you should be mounting a volume there (recommended), as shown in the example configurations, or at the respective subdirectories.
+Make sure that you have installed Docker Compose with version 2.25.0 or higher. Setting up Seafile is really easy and can be (or should be) done via Docker Compose. All important data is stored under `/seafile` so you should be mounting a volume there (recommended), as shown in the example configurations, or at the respective subdirectories.
 
 The first step is to create a `.env` file by copying the provided .env.dist file:
 ```bash
@@ -78,6 +79,29 @@ For a clean install, only office might throw an error (mounting directory onto a
 mkdir -p data/onlyoffice
 cp sample-configs/local.json data/onlyoffice/local.conf
 ```
+
+Custom settings to Docker containers can be added using a `docker-compose.override.yml` file. For example:
+
+```yaml
+services:
+  db:
+    image: mariadb:10.11 
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
+      - MYSQL_LOG_CONSOLE=true
+      # - MARIADB_AUTO_UPGRADE=1
+    volumes:
+      - ./data/custom_db_backup:/tmp/dbbackup
+  reverse-proxy:
+    labels:
+      - traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$2y$$05$$HndX02RYOlvwmPCMAXOyVe7VVnICX7czh7heoOYkf3lS/lByMA2hC # overrides the default credentials for the traefik dashboard
+```
+
+## Upgrading from Seafile 11.0.5
+Starting from 11.0.6, this repository uses Traefik v2 as reverse proxy for Seafile and OnlyOffice. Therefore, other reverse proxies like Nginx should be disabled to avoid port binding conflicts.
+The `.env` configuration must also be updated to include a **DOMAINNAME** variable which contains the top-level domain name of your Seafile instance. The seafile server will be reachable on the subdomain **https://seafile.[DOMAINNAME]**.
 
 ## Upgrading from Seafile 10.x.x
 Simply use the newer 11.x.x Docker image. If you used LDAP, please follow the [official upgrade instructions](https://manual.seafile.com/upgrade/upgrade_notes_for_11.0.x/) and update the settings accordingly.
