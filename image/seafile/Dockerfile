@@ -25,7 +25,7 @@ RUN curl -L https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VE
 WORKDIR /opt/seafile
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
-ARG SEAFILE_VERSION=11.0.6
+ARG SEAFILE_VERSION=11.0.8
 
 ENV SEAFILE_VERSION=${SEAFILE_VERSION}
 
