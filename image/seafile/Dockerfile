@@ -21,6 +21,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 ENV DOCKERIZE_VERSION v0.7.0
 RUN curl -L https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar -xz -C /usr/local/bin
 
+# Fix for Mysql chaching_sha2_password errors
+RUN mkdir -p /usr/lib/mariadb; ln -s /usr/lib/x86_64-linux-gnu/libmariadb3/plugin /usr/lib/mariadb/plugin
 
 WORKDIR /opt/seafile
 
