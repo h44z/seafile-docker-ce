@@ -98,15 +98,12 @@ choose_setup() {
   rm -f ${BASEPATH}/seafile-server-latest
 
   echo $VERSION > $DATADIR/current_version.tmp
-  set +u
   # If $MYSQL_SERVER is set, we assume MYSQL setup is intended,
   # otherwise sqlite
-  if [ -n "${MYSQL_SERVER}" ]
+  if [ -n "${MYSQL_SERVER:-}" ]
   then
-    set -u
     setup_mysql
   else
-    set -u
     setup_sqlite
   fi
   echo "Setup finished, storing current version $VERSION"
@@ -398,7 +395,7 @@ maintenance(){
 }
 
 wait_for_db(){
-  if [ -n "${MYSQL_SERVER}" ]; then
+  if [ -n "${MYSQL_SERVER:-}" ]; then
     # Wait for MySQL to boot up
     DOCKERIZE_TIMEOUT=${DOCKERIZE_TIMEOUT:-"60s"}
     dockerize -timeout ${DOCKERIZE_TIMEOUT} -wait tcp://${MYSQL_SERVER}:${MYSQL_PORT:-3306}
