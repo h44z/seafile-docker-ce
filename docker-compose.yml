@@ -130,6 +130,8 @@ services:
       - '--providers.docker.exposedbydefault=false'
       - '--entrypoints.web.address=:80'
       - '--entrypoints.websecure.address=:443'
+      - '--entryPoints.websecure.transport.respondingTimeouts.readTimeout=36000'
+      - '--entryPoints.websecure.transport.respondingTimeouts.idleTimeout=36000'
       - '--certificatesresolvers.letsencryptresolver.acme.httpchallenge=true'
       - '--certificatesresolvers.letsencryptresolver.acme.httpchallenge.entrypoint=web'
       - '--certificatesresolvers.letsencryptresolver.acme.email=seafile.noreply@${DOMAINNAME}'
