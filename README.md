@@ -6,14 +6,14 @@
 
 ## About
 
-- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 11.0.8.
+- This repository contains the sources that are used to build the `h44z/seafile-ce` docker image. Currently tested with Seafile CE 11.0.9.
 
 - The main goal of this image is to provide a really simple and clean docker image for Seafile Community Edition.
  The official docker image is quite complex and hard to extend or modify. This image instead provides a simple way to deploy a standardized Seafile instance with Docker.
 
 - Automated features that come with this Docker image:
   - Newest Seafile version at rebuild
-  - Traefik v2 reverse proxy for HTTPS
+  - Traefik v3 reverse proxy for HTTPS
   - Automatically runs upgrade scripts (when pulling a newer image) provided by seafile
   - Configurable to run with MySQL/MariaDB or SQLite
   - Auto-setup at initial run

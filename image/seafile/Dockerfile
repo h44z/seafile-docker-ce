@@ -27,7 +27,7 @@ RUN mkdir -p /usr/lib/mariadb; ln -s /usr/lib/x86_64-linux-gnu/libmariadb3/plugi
 WORKDIR /opt/seafile
 
 # build-time arguments, use them in docker build with --build-arg switch to build different version
-ARG SEAFILE_VERSION=11.0.8
+ARG SEAFILE_VERSION=11.0.9
 
 ENV SEAFILE_VERSION=${SEAFILE_VERSION}
 
