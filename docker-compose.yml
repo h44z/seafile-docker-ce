@@ -30,7 +30,7 @@ services:
         max-file: "3"
 
   seafile:
-    image: h44z/seafile-ce:${SEAFILE_VERSION:-11.0.9}
+    image: h44z/seafile-ce:${SEAFILE_VERSION:-11.0.11}
     container_name: seafile
     restart: unless-stopped
     volumes:
