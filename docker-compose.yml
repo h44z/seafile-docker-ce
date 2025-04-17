@@ -4,14 +4,27 @@ services:
     container_name: seafile-mysql
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWD}
       - MYSQL_LOG_CONSOLE=true
       # To upgrade mariadb from an older version, uncomment the line below
-      #- MARIADB_AUTO_UPGRADE=1
+      - MARIADB_AUTO_UPGRADE=1
     volumes:
-      - ${SEAFILE_DB_DATA:-./data/db}:/var/lib/mysql
+      - ${SEAFILE_DB_DATA:-./data-db}:/var/lib/mysql
     networks:
       - seafile-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/usr/local/bin/healthcheck.sh",
+          "--connect",
+          "--mariadbupgrade",
+          "--innodb_initialized",
+        ]
+      interval: 20s
+      start_period: 30s
+      timeout: 5s
+      retries: 10
     logging:
       options:
         max-size: "10m"
@@ -30,16 +43,18 @@ services:
         max-file: "3"
 
   seafile:
-    image: h44z/seafile-ce:${SEAFILE_VERSION:-11.0.13}
+    image: seafileltd/seafile-mc:${SEAFILE_IMAGE_VERSION:-12.0-latest}
     container_name: seafile
     restart: unless-stopped
     volumes:
-      - ${SEAFILE_SHARED_DATA:-./data/seafile}:/seafile
-      - ${SEAFILE_LOG_DIR:-./seafile-logs}:/opt/seafile/logs
+      - ${SEAFILE_SHARED_DATA:-./data}:/shared
     env_file:
       - .env
     depends_on:
-      - memcached
+      db:
+        condition: service_healthy
+      memcached:
+        condition: service_started
     networks:
       - seafile-net
       - proxy-net
@@ -89,7 +104,7 @@ services:
     restart: unless-stopped
     container_name: seafile-oods
     #volumes:
-      # Optional: see https://manual.seafile.com/deploy/only_office/
+      # Optional: see https://manual.seafile.com/12.0/extension/only_office/
       #- ${ONLYOFFICE_CONFIG:-./data/onlyoffice/local.conf}:/etc/onlyoffice/documentserver/local.json
     environment:
       - JWT_ENABLED=true
@@ -117,7 +132,7 @@ services:
       - traefik.http.middlewares.oods-headers.headers.customrequestheaders.X-Forwarded-Proto=https
 
   reverse-proxy:
-    image: traefik:v3.0
+    image: traefik:v3.3
     restart: unless-stopped
     command:
       - '--log.level=DEBUG'
