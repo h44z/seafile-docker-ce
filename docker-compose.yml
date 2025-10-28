@@ -85,7 +85,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      memcached:
+      redis:
         condition: service_started
     networks:
       - seafile-net
