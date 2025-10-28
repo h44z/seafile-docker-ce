@@ -1,9 +1,5 @@
 # Seafile Community Edition - Simple and Clean Docker Version
 
-[![Docker Stars](https://img.shields.io/docker/stars/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/h44z/seafile-ce.svg)](https://hub.docker.com/r/h44z/seafile-ce/)
-[![Docker Build](https://github.com/h44z/seafile-docker-ce/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/h44z/seafile-docker-ce/actions/workflows/docker-publish.yml)
-
 ## About
 
 Previously, this repository included a comprehensive Docker image for Seafile Server CE 11. 
@@ -12,12 +8,13 @@ The key differences from the official installation method are:
 
  - A single docker-compose.yml file is used
  - Traefik replaces Caddy as reverse proxy
- - SeaDoc is omitted
+ - SeaDoc, Metadata Server, Thumbnail Server and Seafile AI extension are omitted
+ - Seafile Notification Server is included
  - OnlyOffice Document Server is included
  - Compatible with previous deployments of `h44z/seafile-ce` containers
 
 
-## Running Seafile 12.x with Docker Compose
+## Running Seafile 13.x with Docker Compose
 
 Starting from version 12, this repository uses the official Seafile Docker images.
 
@@ -34,6 +31,7 @@ cp .env.dist .env
 * **SEAFILE_SERVER_PROTOCOL**: either `http` or `https`
 * **INIT_SEAFILE_ADMIN_EMAIL**: E-mail address of the Seafile admin
 * **INIT_SEAFILE_ADMIN_PASSWORD**: Password of the Seafile admin
+* **REDIS_PASSWORD**: Password for the Redis cache
 
 If you want to use MySQL/MariaDB, the following variables are needed:
 
@@ -74,6 +72,33 @@ services:
     labels:
       - traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$2y$$05$$HndX02RYOlvwmPCMAXOyVe7VVnICX7czh7heoOYkf3lS/lByMA2hC # overrides the default credentials for the traefik dashboard
 ```
+
+## Upgrading from Seafile 12.x
+
+In Seafile 13, a few more configuration options and services were added. For most new values, the defaults should be sufficient. 
+The only option that should manually be set in the `.env` file is `REDIS_PASSWORD`.
+
+ - `SEAFILE_IMAGE_VERSION` was replaced with `SEAFILE_IMAGE`. `SEAFILE_IMAGE` now contains the whole image path, not just the version.
+ - The Seafile notification server has been added. It is enabled with the `ENABLE_NOTIFICATION_SERVER` configuration option. The image can be specified using the `NOTIFICATION_SERVER_IMAGE` option.
+ - Memcached was replaced with Redis. Therefore, the following new configuration options can be set: `CACHE_PROVIDER`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`.
+   The most important option is `REDIS_PASSWORD`, specify a secure password here.
+
+As documented in the [official upgrade guidelines](https://manual.seafile.com/latest/upgrade/upgrade_docker/#upgrade-from-120-to-130), you should also clean up old configuration values in `seafile.conf` and `seahub_settings.py`.
+
+1. backup old files:
+
+```shell
+# please replace ./data to your $SEAFILE_SHARED_DATA
+cp ./data/seafile/conf/seafile.conf ./data/seafile/conf/seafile.conf.bak_v12
+cp ./data/seafile/conf/seahub_settings.py ./data/seafile/conf/seahub_settings.py.bak_v12
+```
+
+2. Clean up redundant configuration items in the configuration files:
+
+Open `./data/seafile/conf/seafile.conf` and remove the entire `[memcached]`, `[database]`, `[commit_object_backend]`, `[fs_object_backend]`, `[notification]` and `[block_backend]` if above sections have correctly specified in .env.
+Open `./data/seafile/conf/seahub_settings.py` and remove the entire blocks for `DATABASES = {...}` and `CAHCES = {...}`.
+
+In the most cases, the `seafile.conf` then only include the listen port 8082 of Seafile file server.
 
 ## Upgrading from Seafile 11.x
 
