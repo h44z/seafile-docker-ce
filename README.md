@@ -96,7 +96,7 @@ cp ./data/seafile/conf/seahub_settings.py ./data/seafile/conf/seahub_settings.py
 2. Clean up redundant configuration items in the configuration files:
 
 Open `./data/seafile/conf/seafile.conf` and remove the entire `[memcached]`, `[database]`, `[commit_object_backend]`, `[fs_object_backend]`, `[notification]` and `[block_backend]` if above sections have correctly specified in .env.
-Open `./data/seafile/conf/seahub_settings.py` and remove the entire blocks for `DATABASES = {...}` and `CAHCES = {...}`.
+Open `./data/seafile/conf/seahub_settings.py` and remove the entire blocks for `DATABASES = {...}` and `CACHES = {...}`.
 
 In the most cases, the `seafile.conf` then only include the listen port 8082 of Seafile file server.
 
