@@ -135,7 +135,7 @@ services:
     container_name: notification-server
     restart: always
     volumes:
-      - ${SEAFILE_VOLUME:-/opt/seafile-data}/seafile/logs:/shared/seafile/logs
+      - ${SEAFILE_SHARED_DATA:-./data}/shared/seafile/logs:/shared/seafile/logs
     # ports:
     #   - "8083:8083"
     environment:
